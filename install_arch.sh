@@ -3,6 +3,8 @@
 CPU_type='intel'
 GPUs='intel nvidia'
 ismount=`grep -qs '/mnt' /proc/mounts`
+UserName='qs315490'
+UserPasswd='Qs315490'
 
 # 软件源
 # reflector -p https -f 1 -c china --save /etc/pacman.d/mirrorlist
@@ -103,9 +105,15 @@ exec $enable sddm
 exec $enable bluetooth
 
 # config
-cat <<EOF >> /mnt/etc/sddm.conf 
+cat <<EOF >> /mnt/etc/sddm.conf.d/numlock.conf
 [General]
 Numlock=on
+EOF
+cat <<EOF >/mnt/etc/sddm.conf.d/autologin.conf
+[Autologin]
+Relogin=false
+Session=plasma
+User=$UserName
 EOF
 for gpu in ${GPUs[@]};do
     case $gpu in
@@ -133,14 +141,14 @@ ntfs_defaults=uid=\$UID,gid=\$GID,noatime,prealloc
 EOF
 
 # add user
-exec useradd -m -G wheel,lp -s '/usr/bin/zsh' qs315490
-exec cp /usr/share/oh-my-zsh/zshrc /home/qs315490/.zshrc
-exec chown qs315490:qs315490 /home/qs315490/.zshrc
-exec su qs315490 -c 'source .zshrc;omz theme set ys;omz plugin enable sudo safe-paste extract command-not-found'
+exec useradd -m -G wheel,lp -s '/usr/bin/zsh' $UserName
+exec cp /usr/share/oh-my-zsh/zshrc /home/$UserName/.zshrc
+exec chown $UserName:$UserName /home/$UserName/.zshrc
+exec su $UserName -c 'source .zshrc;omz theme set ys;omz plugin enable sudo safe-paste extract command-not-found'
 
 # password
-exec bash -c 'echo root:Qs315490|chpasswd'
-exec bash -c 'echo qs315490:Qs315490|chpasswd'
+exec bash -c "echo root:$UserPasswd|chpasswd"
+exec bash -c "echo $UserName:$UserPasswd|chpasswd"
 
 # grub
 exec grub-install
