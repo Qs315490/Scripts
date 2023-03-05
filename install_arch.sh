@@ -2,7 +2,7 @@
 
 CPU_type='intel'
 GPUs='intel nvidia'
-ismount=grep -qs '/mnt' /proc/mounts
+ismount=`grep -qs '/mnt' /proc/mounts`
 
 # 软件源
 # reflector -p https -f 1 -c china --save /etc/pacman.d/mirrorlist
