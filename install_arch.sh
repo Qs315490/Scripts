@@ -5,6 +5,7 @@ GPUs='intel nvidia'
 ismount=`grep -qs '/mnt' /proc/mounts`
 UserName='qs315490'
 UserPasswd='Qs315490'
+HostName='Qs315490-Laptop'
 
 # 软件源
 # reflector -p https -f 1 -c china --save /etc/pacman.d/mirrorlist
@@ -44,7 +45,7 @@ base-devel
 # Shell
 bash-completion zsh sudo reflector pkgfile
 # 字体
-wqy-microhei ttf-cascadia-code
+noto-fonts-{cjk,emoji} ttf-cascadia-code
 # 音频
 sof-firmware alsa-utils pulseaudio-alsa
 # 文件系统
@@ -94,7 +95,7 @@ exec locale-gen
 echo 'LANG=zh_CN.UTF-8' > /mnt/etc/locale.conf
 
 # hostname
-echo 'Qs315490-Laptop' > /mnt/etc/hostname
+echo $HostName > /mnt/etc/hostname
 
 # service
 exec balooctl suspend
