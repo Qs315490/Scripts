@@ -106,7 +106,8 @@ exec $enable sddm
 exec $enable bluetooth
 
 # config
-cat <<EOF >> /mnt/etc/sddm.conf.d/numlock.conf
+mkdir /mnt/etc/sddm.conf.d
+cat <<EOF > /mnt/etc/sddm.conf.d/numlock.conf
 [General]
 Numlock=on
 EOF
@@ -136,7 +137,7 @@ exec sed -i 's/#Color/Color/' /etc/pacman.conf
 exec sed -i 's/#BottomUp/BottomUp/' /etc/paru.conf
 
 # 修复 dolphin ntfs报错
-cat <<EOF >> /etc/udisks2/mount_options.conf
+cat <<EOF >> /mnt/etc/udisks2/mount_options.conf
 [defaults]
 ntfs_defaults=uid=\$UID,gid=\$GID,noatime,prealloc
 EOF
