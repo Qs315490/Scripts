@@ -73,37 +73,37 @@ Server = https://mirrors.ustc.edu.cn/archlinuxcn/\$arch
 EOF
 fi
 
-alias exec='arch-chroot /mnt'
+alias run='arch-chroot /mnt'
 
 # install packages
-exec pacman -Sy archlinuxcn-keyring --noconfirm|| exit 1
-exec pacman -S paru timeshift oh-my-zsh-git pamac-aur rime-cloverpinyin plymouth --noconfirm|| exit 1
+run pacman -Sy archlinuxcn-keyring --noconfirm|| exit 1
+run pacman -S paru timeshift oh-my-zsh-git pamac-aur rime-cloverpinyin plymouth --noconfirm|| exit 1
 
 genfstab -U /mnt >> /mnt/etc/fstab
 
 # 配置 sudo
-exec ln -s /usr/bin/vim /usr/bin/vi
-exec sed -i 's/# %wheel ALL=(ALL:ALL) N/%wheel ALL=(ALL:ALL) N/' /etc/sudoers
+run ln -s /usr/bin/vim /usr/bin/vi
+run sed -i 's/# %wheel ALL=(ALL:ALL) N/%wheel ALL=(ALL:ALL) N/' /etc/sudoers
 
 # 配置 time 设置
-exec ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
-exec hwclock --systohc
+run ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
+run hwclock --systohc
 
 # locale
-exec sed -i 's/#zh_CN.U/zh_CN.U/' /etc/locale.gen
-exec locale-gen
+run sed -i 's/#zh_CN.U/zh_CN.U/' /etc/locale.gen
+run locale-gen
 echo 'LANG=zh_CN.UTF-8' > /mnt/etc/locale.conf
 
 # hostname
 echo $HostName > /mnt/etc/hostname
 
 # service
-exec balooctl suspend
-exec balooctl disable
+run balooctl suspend
+run balooctl disable
 enable="systemctl enable"
-exec $enable NetworkManager
-exec $enable sddm
-exec $enable bluetooth
+run $enable NetworkManager
+run $enable sddm
+run $enable bluetooth
 
 # config
 mkdir /mnt/etc/sddm.conf.d
@@ -133,8 +133,8 @@ GLFW_IM_MODULE=ibus
 EOF
 
 # pacman config
-exec sed -i 's/#Color/Color/' /etc/pacman.conf
-exec sed -i 's/#BottomUp/BottomUp/' /etc/paru.conf
+run sed -i 's/#Color/Color/' /etc/pacman.conf
+run sed -i 's/#BottomUp/BottomUp/' /etc/paru.conf
 
 # 修复 dolphin ntfs报错
 cat <<EOF >> /mnt/etc/udisks2/mount_options.conf
@@ -143,17 +143,17 @@ ntfs_defaults=uid=\$UID,gid=\$GID,noatime,prealloc
 EOF
 
 # add user
-exec useradd -m -G wheel,lp -s '/usr/bin/zsh' $UserName
-exec cp /usr/share/oh-my-zsh/zshrc /home/$UserName/.zshrc
-exec chown $UserName:$UserName /home/$UserName/.zshrc
-exec su $UserName -c 'source ~/.zshrc;omz theme set ys;omz plugin enable sudo safe-paste extract command-not-found'
+run useradd -m -G wheel,lp -s '/usr/bin/zsh' $UserName
+run cp /usr/share/oh-my-zsh/zshrc /home/$UserName/.zshrc
+run chown $UserName:$UserName /home/$UserName/.zshrc
+run su $UserName -c 'source ~/.zshrc;omz theme set ys;omz plugin enable sudo safe-paste extract command-not-found'
 
 # password
-exec bash -c "echo root:$UserPasswd|chpasswd"
-exec bash -c "echo $UserName:$UserPasswd|chpasswd"
+run bash -c "echo root:$UserPasswd|chpasswd"
+run bash -c "echo $UserName:$UserPasswd|chpasswd"
 
 # grub
-exec grub-install
-exec grub-mkconfig -o /boot/grub/grub.cfg
+run grub-install
+run grub-mkconfig -o /boot/grub/grub.cfg
 
-exec pkgfile --update
+run pkgfile --update
