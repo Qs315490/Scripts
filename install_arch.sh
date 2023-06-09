@@ -9,7 +9,7 @@ HostName='Qs315490-Laptop'
 
 # 软件源
 # reflector -p https -f 1 -c china --save /etc/pacman.d/mirrorlist
-echo 'Server = https://mirrors.nju.edu.cn/archlinux/$repo/os/$arch' > /etc/pacman.d/mirrorlist
+echo 'Server = https://mirrors.ustc.edu.cn/archlinux/$repo/os/$arch' > /etc/pacman.d/mirrorlist
 
 if false;then
     mount -t btrfs -o compress=zstd /dev/nvme0n1p3 /mnt
@@ -146,7 +146,7 @@ EOF
 exec useradd -m -G wheel,lp -s '/usr/bin/zsh' $UserName
 exec cp /usr/share/oh-my-zsh/zshrc /home/$UserName/.zshrc
 exec chown $UserName:$UserName /home/$UserName/.zshrc
-exec su $UserName -c 'source .zshrc;omz theme set ys;omz plugin enable sudo safe-paste extract command-not-found'
+exec su $UserName -c 'source ~/.zshrc;omz theme set ys;omz plugin enable sudo safe-paste extract command-not-found'
 
 # password
 exec bash -c "echo root:$UserPasswd|chpasswd"
