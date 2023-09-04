@@ -9,7 +9,8 @@ HostName='Qs315490-Laptop'
 
 # 软件源
 # reflector -p https -f 1 -c china --save /etc/pacman.d/mirrorlist
-echo 'Server = https://mirrors.ustc.edu.cn/archlinux/$repo/os/$arch' > /etc/pacman.d/mirrorlist
+mirror='mirrors.tuna.tsinghua.edu.cn'
+echo "Server = https://$mirror/archlinux/\$repo/os/\$arch" > /etc/pacman.d/mirrorlist
 
 if false;then
     mount -t btrfs -o compress=zstd /dev/nvme0n1p3 /mnt
@@ -69,7 +70,7 @@ pacstrap /mnt base linux linux-firmware vim grub efibootmgr os-prober ${packages
 if ! grep -qs "archlinuxcn" /mnt/etc/pacman.conf;then
     cat <<EOF >>/mnt/etc/pacman.conf
 [archlinuxcn]
-Server = https://mirrors.ustc.edu.cn/archlinuxcn/\$arch
+Server = https://$mirror/archlinuxcn/\$arch
 EOF
 fi
 
