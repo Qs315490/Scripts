@@ -7,30 +7,45 @@ UserName='qs315490'
 UserPasswd='Qs315490'
 HostName='Qs315490-Laptop'
 
+desktop_type='plasma'
+
+part_root='/dev/nvme0n1p3'
+part_swap='/dev/nvme0n1p2'
+part_efi='/dev/nvme0n1p1'
+
 # 软件源
 # reflector -p https -f 1 -c china --save /etc/pacman.d/mirrorlist
 mirror='mirrors.tuna.tsinghua.edu.cn'
 echo "Server = https://$mirror/archlinux/\$repo/os/\$arch" > /etc/pacman.d/mirrorlist
 
+if [[ $1 == 'sel' ]];then
+    echo 'WIP'
+    PS3='CPU Type:';select CPU_type in intel amd;break
+    PS3='GPU Type:';select GPUs in intel amd nvidia;break
+fi
+
 if false;then
-    mount -t btrfs -o compress=zstd /dev/nvme0n1p3 /mnt
+    mount -t btrfs -o compress=zstd $part_root /mnt
     cd /mnt
-    btrfs sub create @
+    btrfs sub c @
+    btrfs sub c @home
+    cd ..
     umount /mnt
 fi
 
 # mount
 if ! $ismount;then
-    mount -t btrfs -o compress=zstd,subvol=@ /dev/nvme0n1p3 /mnt
-    mkdir -p /mnt/boot/efi
-    mount /dev/nvme0n1p1 /mnt/boot/efi
-    swapon /dev/nvme0n1p2
+    mount -t btrfs -o compress=zstd,subvol=@ $part_root /mnt
+    mkdir -p /mnt/boot/efi /mnt/home
+    mount -t btrfs -o compress=zstd,subvol=@home $part_root /mnt/home
+    mount $part_efi /mnt/boot/efi
+    swapon $part_swap
 fi
 
 GPU(){
-    for arg in "$@";do
+    for arg in "$GPUs";do
         case $arg in
-            "intel") 
+            'intel') 
                 echo {vulkan,xf86-video}-intel intel-media-driver;;
             'nvidia') 
                 echo nvidia{,-{utils,prime,settings}};;
@@ -39,6 +54,22 @@ GPU(){
             *) ;;
         esac
     done
+}
+
+plasma=(
+# sddm
+sddm sddm-kcm # kde 控制模块
+# Kde 最小安装
+plasma-{desktop,wayland-session,pa,nm,systemmonitor} breeze-gtk kde-gtk-config powerdevil kscreen kgamma5 kinfocenter konsole fcitx5-im kcm-fcitx5 fcitx5-rime kate dolphin colord-kde gpm ark partitionmanager kwalletmanager kdeconnect sshfs
+# 蓝牙
+bluedevil pulseaudio-bluetooth
+)
+
+desktop(){
+    case $desktop_type in
+        'plasma') echo ${plasma[@]};;
+        *) ;;
+    esac
 }
 
 packages=(
@@ -56,13 +87,11 @@ networkmanager
 # CPU
 ${CPU_type}-ucode
 # GPU
-`GPU ${GPUs}`
-# sddm
-sddm sddm-kcm # kde 控制模块
-# Kde
-plasma-{desktop,pa,nm,systemmonitor} breeze-gtk kde-gtk-config powerdevil kscreen kgamma5 kinfocenter konsole fcitx5-im kcm-fcitx5 fcitx5-rime kate dolphin colord-kde gpm ark partitionmanager kwalletmanager kdeconnect sshfs
-# bluetooth
-bluez-utils bluedevil pulseaudio-bluetooth
+`GPU`
+# 桌面环境
+`desktop`
+# 蓝牙
+bluez-utils
 )
 
 # 开始安装
@@ -88,6 +117,7 @@ run sed -i 's/# %wheel ALL=(ALL:ALL) N/%wheel ALL=(ALL:ALL) N/' /etc/sudoers
 
 # 配置 time 设置
 run ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
+run timedatectl set-local-rtc true
 run hwclock --systohc
 
 # locale
@@ -108,16 +138,15 @@ run $enable bluetooth
 
 # config
 mkdir /mnt/etc/sddm.conf.d
-cat <<EOF > /mnt/etc/sddm.conf.d/numlock.conf
+cat <<EOF > /mnt/etc/sddm.conf.d/kde_settings.conf
 [General]
 Numlock=on
-EOF
-cat <<EOF >/mnt/etc/sddm.conf.d/autologin.conf
 [Autologin]
 Relogin=false
 Session=plasma
 User=$UserName
 EOF
+
 for gpu in ${GPUs[@]};do
     case $gpu in
         intel)
@@ -138,10 +167,12 @@ run sed -i 's/#Color/Color/' /etc/pacman.conf
 run sed -i 's/#BottomUp/BottomUp/' /etc/paru.conf
 
 # 修复 dolphin ntfs报错
+if [[ $disktop_type == 'plasma' ]];then
 cat <<EOF >> /mnt/etc/udisks2/mount_options.conf
 [defaults]
 ntfs_defaults=uid=\$UID,gid=\$GID,noatime,prealloc
 EOF
+fi
 
 # add user
 run useradd -m -G wheel,lp -s '/usr/bin/zsh' $UserName
@@ -155,6 +186,7 @@ run bash -c "echo $UserName:$UserPasswd|chpasswd"
 
 # grub
 run grub-install
+run sed -i 's/#GRUB_DISABLE_OS/GRUB_DISABLE_OS/' /etc/default/grub
 run grub-mkconfig -o /boot/grub/grub.cfg
 
 run pkgfile --update
