@@ -75,7 +75,7 @@ desktop(){
 packages=(
 base-devel
 # Shell
-bash-completion zsh sudo reflector pkgfile
+bash-completion zsh sudo reflector pkgfile less
 # 字体
 noto-fonts-{cjk,emoji} ttf-cascadia-code
 # 音频
@@ -117,8 +117,9 @@ run sed -i 's/# %wheel ALL=(ALL:ALL) N/%wheel ALL=(ALL:ALL) N/' /etc/sudoers
 
 # 配置 time 设置
 run ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
-run timedatectl set-local-rtc true
 run hwclock --systohc
+# timedatectl 只能改变当前环境，chroot环境不影响最终环境
+# run timedatectl set-local-rtc true
 
 # locale
 run sed -i 's/#zh_CN.U/zh_CN.U/' /etc/locale.gen
