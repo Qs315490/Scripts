@@ -65,12 +65,20 @@ plasma-{desktop,wayland-session,pa,nm,systemmonitor} breeze-gtk kde-gtk-config p
 bluedevil pulseaudio-bluetooth
 )
 
-desktop(){
-    case $desktop_type in
-        'plasma') echo ${plasma[@]};;
-        *) ;;
-    esac
-}
+# 未完成
+hyprland=(
+    # 管理器
+    sddm
+    # hyprland
+    hyprland
+    # 终端
+    foot
+    # 状态栏
+    waybar
+    # 启动器
+    wofi
+    # 音频
+)
 
 packages=(
 base-devel
@@ -89,7 +97,7 @@ ${CPU_type}-ucode
 # GPU
 `GPU`
 # 桌面环境
-`desktop`
+`eval echo \${$desktop_type}`
 # 蓝牙
 bluez-utils
 )
@@ -139,6 +147,7 @@ run $enable bluetooth
 
 # config
 mkdir /mnt/etc/sddm.conf.d
+if [[ $desktop_type == 'plasma' ]];then
 cat <<EOF > /mnt/etc/sddm.conf.d/kde_settings.conf
 [General]
 Numlock=on
@@ -147,6 +156,7 @@ Relogin=false
 Session=plasma
 User=$UserName
 EOF
+fi
 
 for gpu in ${GPUs[@]};do
     case $gpu in
