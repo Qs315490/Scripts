@@ -1,8 +1,10 @@
 @ECHO OFF
 set PATH=%PATH%;C:\Program Files\MKVToolNix
 
+GOTO EOF
+
 echo %1
-:: ±à¼­µÚÒ»¸ö×ÖÄ»Ãû³Æ
-mkvpropedit --edit info -d title %1
+:: åˆ é™¤æ‰€æœ‰å­—å¹•
+mkvpropedit -o %1.output.mkv %1 -S
 
 pause
