@@ -24,14 +24,21 @@ def file_add(work_file: str):
         mkvtrack = MKVTrack(ass)
         info = ass.replace(name, "", 1).split(".")[
             1:-1
-        ]  # 获取文件尾部名称，“语言名称.ISO639名称”
+        ]  # 获取文件尾部名称
         count = len(info)
-        if count == 2:
+        if count == 2: # 符合jellyfin标注的格式 “语言名称.ISO639名称”
             mkvtrack.track_name = info[0]
             if "简" in info[0]:  # 如果是简体就设置为默认
                 mkvtrack.default_track = True
             mkvtrack.language = info[1]
-        elif count == 1:
+        elif count == 1: # 常见格式
+            if info[0] == 'chs' or 'sc':
+                mkvtrack.track_name = '简体中文'
+                mkvtrack.default_track = True
+                info[0] = 'chi'
+            if info[0] == 'cht' or 'tc':
+                mkvtrack.track_name = '繁体中文'
+                info[0] = 'chi'
             mkvtrack.language = info[0]
         mkv.add_track(mkvtrack)
         add_track = True
