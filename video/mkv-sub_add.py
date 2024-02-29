@@ -32,11 +32,13 @@ def file_add(work_file: str):
                 mkvtrack.default_track = True
             mkvtrack.language = info[1]
         elif count == 1: # 常见格式
-            if info[0] == 'chs' or 'sc':
+            lang_zh_cn = ['chs', 'sc', 'zh', 'zh-cn']
+            lang_zh_tw = ['cht', 'tc', 'zh-tw']
+            if info[0] in lang_zh_cn:
                 mkvtrack.track_name = '简体中文'
                 mkvtrack.default_track = True
                 info[0] = 'chi'
-            if info[0] == 'cht' or 'tc':
+            if info[0] in lang_zh_tw:
                 mkvtrack.track_name = '繁体中文'
                 info[0] = 'chi'
             mkvtrack.language = info[0]
