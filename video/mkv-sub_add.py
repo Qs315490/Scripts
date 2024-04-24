@@ -7,22 +7,22 @@ from os import chdir, listdir, path
 from pymkv import MKVFile, MKVTrack
 
 mkvs: list[str] = []
-asss: list[str] = []
+subs: list[str] = []
 
 
 def file_add(work_file: str):
     mkv = MKVFile(work_file)
     add_track = False
     name = path.splitext(work_file)[0]  # 获取文件名，无扩展名
-    ass_list: list[str] = []  # 匹配的ass文件
-    for ass in asss[:]:
-        if name in ass:
-            ass_list.append(ass)
-            asss.remove(ass)
-    # 开始添加ass文件
-    for ass in ass_list:
-        mkvtrack = MKVTrack(ass)
-        info = ass.replace(name, "", 1).split(".")[
+    subs_list: list[str] = []  # 匹配的字幕文件
+    for sub in subs[:]:
+        if name in sub:
+            subs_list.append(sub)
+            subs.remove(sub)
+    # 开始添加字幕文件
+    for sub in subs_list:
+        mkvtrack = MKVTrack(sub)
+        info = sub.replace(name, "", 1).split(".")[
             1:-1
         ]  # 获取文件尾部名称
         count = len(info)
@@ -32,8 +32,8 @@ def file_add(work_file: str):
                 mkvtrack.default_track = True
             mkvtrack.language = info[1]
         elif count == 1: # 常见格式
-            lang_zh_cn = ['chs', 'sc', 'zh', 'zh-cn']
-            lang_zh_tw = ['cht', 'tc', 'zh-tw']
+            lang_zh_cn = ['chs', 'sc', 'zh', 'zh-cn', 'zh-Hans']
+            lang_zh_tw = ['cht', 'tc', 'zh-tw', 'zh-Hant']
             if info[0] in lang_zh_cn:
                 mkvtrack.track_name = '简体中文'
                 mkvtrack.default_track = True
@@ -54,8 +54,8 @@ def dir_add(dir_path: str):
     for file in listdir(dir_path):
         if file.endswith(".mkv"):
             mkvs.append(file)
-        if file.endswith(".ass"):
-            asss.append(file)
+        if file.endswith(".ass") or file.endswith(".srt"):
+            subs.append(file)
 
     for mkv in mkvs:
         file_add(mkv)
