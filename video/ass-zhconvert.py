@@ -1,5 +1,5 @@
 """
-剔除mkv文件字幕，参数1为 文件 或 文件夹
+转换mkv文件字幕，参数1为 文件 或 文件夹
 """
 
 from sys import argv
@@ -25,7 +25,7 @@ def dir_convert(dir_path: str):
 def main():
     argc = len(argv)
     if argc < 2:
-        print(f"Usage: python {argv[0]} <input.mkv>|<mkv_dir>")
+        print(f"Usage: python {argv[0]} <input.ass>|<mkv_dir>")
         return
 
     if path.isfile(argv[1]):
