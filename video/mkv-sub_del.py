@@ -13,11 +13,12 @@ def file_del(work_file: str):
     tracks: list[MKVTrack] = mkv.tracks
     if type(tracks[0]) is not MKVTrack:
         return
-    for track in tracks:
+    for track in tracks[:]:
         if track.track_type == "subtitles":
-            mkv.remove_track(track.track_id)
+            mkv.tracks.remove(track)
             removed_track = True
     if removed_track:
+        mkv.no_attachments()
         # 在文件目录新建output文件夹
         mkv.mux(f"./output/{path.basename(work_file)}")
 
