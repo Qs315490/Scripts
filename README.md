@@ -37,7 +37,7 @@ python mkv-attachments_del.py <input.mkv>|<mkv_dir>
 
 ### mkv-sub_add.py
 ```
-python mkv-sub_add.py <input.mkv>|<mkv_dir>
+python mkv-sub_add.py <mkv_and_ass_dir>
 ```
 将 `input.ass` 字幕文件添加到 `input.mkv` 视频中，字幕文件前名称因与视频匹配，后缀前字符因为语言代码。
 语言|代码
