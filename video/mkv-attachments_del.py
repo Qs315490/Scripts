@@ -17,7 +17,7 @@ def file_del(work_file: str):
 def dir_del(dir_path: str):
     for file in listdir(dir_path):
         if file.endswith(".mkv"):
-            file_del(path.join(dir_path, file))
+            file_del(file)
 
 
 def main():
