@@ -10,7 +10,7 @@ output_dir = "./output"
 os.mkdir(input_dir) if not os.path.exists(input_dir) else None
 os.mkdir(output_dir) if not os.path.exists(output_dir) else None
 
-def ttf2woff2(file, fail_list):
+def ttf2woff2(file:str, fail_list):
     try:
         font = TTFont(os.path.join(input_dir, file))
     except Exception as e:
@@ -20,6 +20,7 @@ def ttf2woff2(file, fail_list):
         return
     font.flavor = "woff2"
     file = os.path.splitext(file)[0] + ".woff2"
+    file = file.replace(" ", "_")
     font.save(os.path.join(output_dir, file))
     print(f"转换完成: {file} ")
 
