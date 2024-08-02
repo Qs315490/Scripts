@@ -10,6 +10,23 @@ mkvs: list[str] = []
 subs: list[str] = []
 
 
+def lang_code_convert(code: str, name: str = '') -> tuple[str, str]:
+    """
+    @param code: 语言代码
+    @param name: 语言名称
+    @return: (语言名称, ISO639名称)
+    """
+    if code == "":
+        return name, "und"
+    lang_zh_cn = ['chs', 'sc', 'zh', 'zh-cn', 'zh-hans']
+    lang_zh_tw = ['cht', 'tc', 'zh-tw', 'zh-hant']
+    if code.lower() in lang_zh_cn:
+        return '简体中文', 'chi'
+    if code.lower() in lang_zh_tw:
+        return '繁体中文', 'chi'
+    return name, code
+
+
 def file_add(work_file: str):
     mkv = MKVFile(work_file)
     add_track = False
@@ -22,26 +39,19 @@ def file_add(work_file: str):
     # 开始添加字幕文件
     for sub in subs_list:
         mkvtrack = MKVTrack(sub)
-        info = sub.replace(name, "", 1).split(".")[
-            1:-1
-        ]  # 获取文件尾部名称
+        info = sub.replace(name, "", 1).split(".")[1:-1]  # 获取文件尾部名称
         count = len(info)
-        if count == 2: # 符合jellyfin标注的格式 “语言名称.ISO639名称”
-            mkvtrack.track_name = info[0]
-            if "简" in info[0]:  # 如果是简体就设置为默认
-                mkvtrack.default_track = True
-            mkvtrack.language = info[1]
-        elif count == 1: # 常见格式
-            lang_zh_cn = ['chs', 'sc', 'zh', 'zh-cn', 'zh-hans']
-            lang_zh_tw = ['cht', 'tc', 'zh-tw', 'zh-hant']
-            if info[0].lower() in lang_zh_cn:
-                mkvtrack.track_name = '简体中文'
-                mkvtrack.default_track = True
-                info[0] = 'chi'
-            if info[0].lower() in lang_zh_tw:
-                mkvtrack.track_name = '繁体中文'
-                info[0] = 'chi'
-            mkvtrack.language = info[0]
+        if count == 2:  # 符合jellyfin标注的格式 “语言名称.ISO639名称”
+            tmp = lang_code_convert(info[1], info[0])
+        elif count == 1:  # 常见格式
+            tmp = lang_code_convert(info[0])
+        else:  # 不符合格式
+            print(f"文件 {sub} 无匹配格式，跳过")
+            continue
+        mkvtrack.track_name = tmp[0]
+        mkvtrack.language = tmp[1]
+        if "简" in tmp[0]:  # 如果是简体就设置为默认
+            mkvtrack.default_track = True
         mkv.add_track(mkvtrack)
         add_track = True
 
