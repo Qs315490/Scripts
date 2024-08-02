@@ -6,7 +6,7 @@
 -|-
 <>|必选参数
 []|可选参数
-<1>\|<2>|1 或 2
+{1\|2}|1 或 2
 
 PS: Windows批处理文件在处理多文件时是堆积到参数中的，列如：
 ```
@@ -25,6 +25,12 @@ file.bat file1 file2 file3
 python ass-zhconvert.py <input.ass>|<mkv_dir>
 ```
 将繁体的字幕文件翻译为简体
+
+## mkv_tools.py
+```
+python mkv_tools.py [-h | --help]
+```
+将以下mkv工具整合成一个文件，使用子命令方式调用。
 
 ### mkv-attachments_del.py
 ```
