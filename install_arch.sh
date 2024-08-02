@@ -1,7 +1,7 @@
 #!/bin/bash -i
 
 CPU_type='intel'
-GPUs='intel nvidia'
+GPUs=(intel nvidia)
 ismount=`grep -qs '/mnt' /proc/mounts`
 UserName='qs315490'
 UserPasswd='Qs315490'
@@ -65,6 +65,11 @@ plasma-{desktop,wayland-session,pa,nm,systemmonitor} breeze-gtk kde-gtk-config p
 bluedevil pulseaudio-bluetooth
 )
 
+plasma-wayland=(
+${plasma[@]}
+plasma-wayland-session
+)
+
 # 未完成
 hyprland=(
     # 管理器
@@ -97,7 +102,7 @@ ${CPU_type}-ucode
 # GPU
 `GPU`
 # 桌面环境
-`eval echo \${$desktop_type}`
+${$desktop_type}
 # 蓝牙
 bluez-utils
 )
@@ -165,9 +170,14 @@ for gpu in ${GPUs[@]};do
     esac
 done
 
+if [[ $desktop_type == 'plasma' ]];then
 cat <<EOF >> /mnt/etc/environment
 GTK_IM_MODULE=fcitx
 QT_IM_MODULE=fcitx
+EOF
+fi
+
+cat <<EOF >> /mnt/etc/environment
 XMODIFIERS=@im=fcitx
 SDL_IM_MODULE=fcitx
 GLFW_IM_MODULE=ibus
