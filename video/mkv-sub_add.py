@@ -20,10 +20,13 @@ def lang_code_convert(code: str, name: str = '') -> tuple[str, str]:
         return name, "und"
     lang_zh_cn = ['chs', 'sc', 'zh', 'zh-cn', 'zh-hans']
     lang_zh_tw = ['cht', 'tc', 'zh-tw', 'zh-hant']
+    lang_jp = ['ja', 'jp']
     if code.lower() in lang_zh_cn:
         return '简体中文', 'chi'
     if code.lower() in lang_zh_tw:
         return '繁体中文', 'chi'
+    if code.lower() in lang_jp:
+        return "日语", "jpn"
     return name, code
 
 
