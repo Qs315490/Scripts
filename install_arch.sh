@@ -60,14 +60,18 @@ plasma=(
 # sddm
 sddm sddm-kcm # kde 控制模块
 # Kde 最小安装
-plasma-{desktop,wayland-session,pa,nm,systemmonitor} breeze-gtk kde-gtk-config powerdevil kscreen kgamma5 kinfocenter konsole fcitx5-im kcm-fcitx5 fcitx5-rime kate dolphin colord-kde gpm ark partitionmanager kwalletmanager kdeconnect sshfs
+plasma-{desktop,pa,nm,systemmonitor} breeze-gtk kde-gtk-config powerdevil kscreen kgamma kinfocenter konsole fcitx5-im kcm-fcitx5 fcitx5-rime kate dolphin colord-kde gpm ark partitionmanager kwalletmanager kdeconnect sshfs
 # 蓝牙
 bluedevil pulseaudio-bluetooth
+# 屏幕跟随传感器旋转
+# iio-sensor-proxy
 )
 
+# 未完成
 plasma-wayland=(
 ${plasma[@]}
-plasma-wayland-session
+plasma-wayland-protocols
+krdp
 )
 
 # 未完成
@@ -92,7 +96,7 @@ bash-completion zsh sudo reflector pkgfile less
 # 字体
 noto-fonts-{cjk,emoji} ttf-cascadia-code
 # 音频
-sof-firmware alsa-utils pulseaudio-alsa
+sof-firmware alsa-utils pipewire-{alsa,audio,pulse}
 # 文件系统
 btrfs-progs exfatprogs
 # 网络
@@ -126,7 +130,7 @@ genfstab -U /mnt >> /mnt/etc/fstab
 
 # 配置 sudo
 run ln -s /usr/bin/vim /usr/bin/vi
-run sed -i 's/# %wheel ALL=(ALL:ALL) N/%wheel ALL=(ALL:ALL) N/' /etc/sudoers
+sed -i 's/# %wheel ALL=(ALL:ALL) N/%wheel ALL=(ALL:ALL) N/' /mnt/etc/sudoers
 
 # 配置 time 设置
 run ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
@@ -135,7 +139,7 @@ run hwclock --systohc
 # run timedatectl set-local-rtc true
 
 # locale
-run sed -i 's/#zh_CN.U/zh_CN.U/' /etc/locale.gen
+sed -i 's/#zh_CN.U/zh_CN.U/' /mnt/etc/locale.gen
 run locale-gen
 echo 'LANG=zh_CN.UTF-8' > /mnt/etc/locale.conf
 
@@ -184,8 +188,8 @@ GLFW_IM_MODULE=ibus
 EOF
 
 # pacman config
-run sed -i 's/#Color/Color/' /etc/pacman.conf
-run sed -i 's/#BottomUp/BottomUp/' /etc/paru.conf
+sed -i 's/#Color/Color/' /mnt/etc/pacman.conf
+sed -i 's/#BottomUp/BottomUp/' /mnt/etc/paru.conf
 
 # 修复 dolphin ntfs报错
 if [[ $disktop_type == 'plasma' ]];then
