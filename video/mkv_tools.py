@@ -47,7 +47,7 @@ def file_scan(file_path: str):
     扫描文件，获取所有符合要求的文件
     :param file_path: 文件路径
     """
-    file_name = file_path
+    file_name = path.splitext(file_path)[0]
     for file in listdir(file_path):
         if file_name in file:
             if file.endswith(".mkv"):
@@ -81,8 +81,8 @@ def scan_path(scan_path: str, type_fitter: list[str]):
         dir_scan(scan_path, type_fitter)
 
 
-def audio2_del(file_path: str):
-    scan_path(file_path, ['mkv'])
+def audio2_del(work_path: str):
+    scan_path(work_path, ['mkv'])
     for file_path in mkv_files:
         mkv = MKVFile(file_path)
         tracks: list[MKVTrack] = mkv.tracks
@@ -95,8 +95,8 @@ def audio2_del(file_path: str):
             mkv.mux(f"./output/{file_path}")
 
 
-def subtitle_del(file_path: str):
-    scan_path(file_path, ['mkv'])
+def subtitle_del(work_path: str):
+    scan_path(work_path, ['mkv'])
     for file_path in mkv_files:
         mkv = MKVFile(file_path)
         tracks: list[MKVTrack] = mkv.tracks
@@ -110,8 +110,8 @@ def subtitle_del(file_path: str):
             mkv.mux(f"./output/{file_path}")
 
 
-def attachments_del(file_path: str):
-    scan_path(file_path, ['mkv'])
+def attachments_del(work_path: str):
+    scan_path(work_path, ['mkv'])
     for file_path in mkv_files:
         mkv = MKVFile(file_path)
         tracks: list[MKVTrack] = mkv.tracks
@@ -124,8 +124,8 @@ def attachments_del(file_path: str):
             mkv.mux(f"./output/{file_path}")
 
 
-def title_del(file_path: str):
-    scan_path(file_path, ['mkv'])
+def title_del(work_path: str):
+    scan_path(work_path, ['mkv'])
     for file_path in mkv_files:
         system(f'mkvpropedit --edit info -d title "{file_path}"')
 
@@ -150,21 +150,22 @@ def lang_code_convert(code: str, name: str = '') -> tuple[str, str]:
     return name, code
 
 
-def subtitle_add(file_path: str):
-    scan_path(file_path, ['mkv', 'subtitle'])
+def subtitle_add(work_path: str):
+    scan_path(work_path, ['mkv', 'subtitle'])
     for file_path in mkv_files:
         mkv = MKVFile(file_path)
         file_name = path.splitext(file_path)[0]
         sub_list: list[str] = []
         # 筛选字幕文件
-        for sub_file in sub_files:
-            if file_name in sub_file[:]:
+        for sub_file in sub_files[:]:
+            if file_name in sub_file:
                 sub_list.append(sub_file)
                 sub_files.remove(sub_file)
 
         # 开始添加字幕文件
+        add_track = False
         for sub_file in sub_list:
-            mkvtrack = MKVTrack(file_name)
+            mkvtrack = MKVTrack(sub_file)
             info = sub_file.replace(file_name, "", 1).split(".")[
                 1:-1
             ]  # 获取文件尾部名称
@@ -188,8 +189,8 @@ def subtitle_add(file_path: str):
             mkv.mux(f"./output/{file_path}")
 
 
-def subtitle_edit(file_path: str):
-    scan_path(file_path, ['mkv'])
+def subtitle_edit(work_path: str):
+    scan_path(work_path, ['mkv'])
     for file_path in mkv_files:
         system(
             'mkvpropedit --edit track:3 -s name="简体中文" -s flag-default=1 '
@@ -197,8 +198,8 @@ def subtitle_edit(file_path: str):
         )
 
 
-def extract_subtitle(file_path: str):
-    scan_path(file_path, ['mkv'])
+def extract_subtitle(work_path: str):
+    scan_path(work_path, ['mkv'])
     for file_path in mkv_files:
         file_name = path.splitext(file_path)[0]
         mkv = MKVFile(file_path)
