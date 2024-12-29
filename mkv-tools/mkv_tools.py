@@ -138,8 +138,8 @@ def lang_code_convert(code: str, name: str = '') -> tuple[str, str]:
     """
     if code == "":
         return name, "und"
-    lang_zh_cn = ['chs', 'sc', 'zh', 'zh-cn', 'zh-hans']
-    lang_zh_tw = ['cht', 'tc', 'zh-tw', 'zh-hant']
+    lang_zh_cn = ['chs', 'sc', 'zh', 'zh-cn', 'zh-hans', 'jpsc']
+    lang_zh_tw = ['cht', 'tc', 'zh-tw', 'zh-hant', 'jptc']
     lang_jp = ['ja', 'jp']
     if code.lower() in lang_zh_cn:
         return '简体中文', 'chi'
@@ -169,6 +169,9 @@ def subtitle_add(work_path: str):
             info = sub_file.replace(file_name, "", 1).split(".")[
                 1:-1
             ]  # 获取文件尾部名称
+            if info[0] == "mkv":
+                # 如果没有语言信息，则默认中文
+                info = ['zh']
             count = len(info)
             if count == 2:  # 符合jellyfin标注的格式 “语言名称.ISO639名称”
                 tmp = lang_code_convert(info[1], info[0])
