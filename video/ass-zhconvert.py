@@ -3,15 +3,18 @@
 """
 
 from sys import argv
-from os import chdir, listdir, path
+from os import chdir, listdir, path, mkdir
 from opencc import OpenCC
 
+OUTPUT_PATH='./output'
 
 def file_convert(work_file: str):
     with open(work_file, "r", encoding="utf-8") as f:
         content = f.read()
     content = OpenCC("t2s.json").convert(content)
-    with open(f"./output/{work_file}", "x", encoding="utf-8") as f:
+    if not path.isdir(OUTPUT_PATH):
+        mkdir(OUTPUT_PATH)
+    with open(f"{OUTPUT_PATH}/{work_file}", "x", encoding="utf-8") as f:
         f.write(content)
     print(f"{work_file} 转换完成")
 
@@ -19,7 +22,7 @@ def file_convert(work_file: str):
 def dir_convert(dir_path: str):
     for file in listdir(dir_path):
         if file.endswith(".ass"):
-            file_convert(path.join(dir_path, file))
+            file_convert(file)
 
 
 def main():
