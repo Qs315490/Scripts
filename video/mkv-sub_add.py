@@ -36,7 +36,7 @@ def file_add(work_file: str):
     name = path.splitext(work_file)[0]  # 获取文件名，无扩展名
     subs_list: list[str] = []  # 匹配的字幕文件
     for sub in subs[:]:
-        if name in sub:
+        if name.lower() in sub.lower():
             subs_list.append(sub)
             subs.remove(sub)
     # 开始添加字幕文件
