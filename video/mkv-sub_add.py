@@ -4,6 +4,7 @@
 
 from sys import argv
 from os import chdir, listdir, path
+from rich.progress import track
 from pymkv import MKVFile, MKVTrack
 
 mkvs: list[str] = []
@@ -73,7 +74,7 @@ def dir_add(dir_path: str):
         if file.endswith(".ass") or file.endswith(".srt"):
             subs.append(file)
 
-    for mkv in mkvs:
+    for mkv in track(mkvs, description="正在添加字幕"):
         file_add(mkv)
 
 

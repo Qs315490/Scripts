@@ -4,6 +4,7 @@
 
 from sys import argv
 from os import chdir, listdir, path
+from rich.progress import track
 from pymkv import MKVFile
 
 
@@ -15,9 +16,13 @@ def file_del(work_file: str):
 
 
 def dir_del(dir_path: str):
+    mkv_file =[]
     for file in listdir(dir_path):
         if file.endswith(".mkv"):
-            file_del(file)
+            mkv_file.append(file)
+
+    for file in track(mkv_file, description="附件文件删除"):
+        file_del(file)
 
 
 def main():

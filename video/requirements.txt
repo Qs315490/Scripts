@@ -1,3 +1,4 @@
 setuptools
 pymkv
 opencc
+rich

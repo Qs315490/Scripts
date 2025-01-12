@@ -4,6 +4,7 @@
 
 from sys import argv
 from os import chdir, listdir, path, mkdir
+from rich.progress import track
 from opencc import OpenCC
 
 OUTPUT_PATH='./output'
@@ -20,9 +21,12 @@ def file_convert(work_file: str):
 
 
 def dir_convert(dir_path: str):
+    mkv_list = []
     for file in listdir(dir_path):
         if file.endswith(".ass"):
-            file_convert(file)
+            mkv_list.append(file)
+    for file in mkv_list:
+        file_convert(file)
 
 
 def main():
