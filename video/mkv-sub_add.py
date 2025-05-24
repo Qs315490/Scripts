@@ -19,8 +19,8 @@ def lang_code_convert(code: str, name: str = '') -> tuple[str, str]:
     """
     if code == "":
         return name, "und"
-    lang_zh_cn = ['chs', 'sc', 'zh', 'zh-cn', 'zh-hans', 'jpsc']
-    lang_zh_tw = ['cht', 'tc', 'zh-tw', 'zh-hant', 'jptc']
+    lang_zh_cn = ['chs', 'sc', 'zh', 'zh-cn', 'zh-hans', 'jpsc', 'gb']
+    lang_zh_tw = ['cht', 'tc', 'zh-tw', 'zh-hant', 'jptc', 'big5']
     lang_jp = ['ja', 'jp']
     if code.lower() in lang_zh_cn:
         return '简体中文', 'chi'
