@@ -44,14 +44,14 @@ def file_add(work_file: str):
     for sub in subs_list:
         mkvtrack = MKVTrack(sub)
         info = sub.replace(name, "", 1).split(".")[1:-1]  # 获取文件尾部名称
-        if info[0] == "mkv":
-            # 如果没有语言信息，则默认中文
-            info = ['zh']
         count = len(info)
         if count == 2:  # 符合jellyfin标注的格式 “语言名称.ISO639名称”
             tmp = lang_code_convert(info[1], info[0])
         elif count == 1:  # 常见格式
             tmp = lang_code_convert(info[0])
+        elif count == 0:
+            # 无语言代码，默认为简体中文
+            tmp = lang_code_convert("chs")
         else:  # 不符合格式
             print(f"文件 {sub} 无匹配格式，跳过")
             continue
