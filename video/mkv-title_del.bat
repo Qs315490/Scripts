@@ -1,10 +1,10 @@
 @ECHO OFF
 set PATH=%PATH%;C:\Program Files\MKVToolNix
 
-for %%i in (%*) do (
+for %%i in (*.mkv) do (
     echo %%i
     :: É¾³ý±êÌâ
-    mkvpropedit --edit info -d title %1
+    mkvpropedit --edit info -d title "%%i"
 )
 
 pause
