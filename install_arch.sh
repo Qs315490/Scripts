@@ -60,7 +60,7 @@ plasma=(
 # sddm
 sddm sddm-kcm # kde 控制模块
 # Kde 最小安装
-plasma-{desktop,pa,nm,systemmonitor} breeze-gtk kde-gtk-config powerdevil kscreen kgamma kinfocenter konsole fcitx5-im kcm-fcitx5 fcitx5-rime kate dolphin colord-kde gpm ark partitionmanager kwalletmanager kdeconnect sshfs
+plasma-{desktop,pa,nm,systemmonitor} breeze-gtk kde-gtk-config powerdevil kscreen kgamma kinfocenter konsole fcitx5-im kcm-fcitx5 fcitx5-chinese-addons kate dolphin colord-kde gpm ark partitionmanager kwalletmanager kdeconnect sshfs
 # 蓝牙
 bluedevil pulseaudio-bluetooth
 # 屏幕跟随传感器旋转
@@ -124,7 +124,7 @@ alias run='arch-chroot /mnt'
 
 # install packages
 run pacman -Sy archlinuxcn-keyring --noconfirm|| exit 1
-run pacman -S paru timeshift oh-my-zsh-git pamac-aur rime-cloverpinyin plymouth --noconfirm|| exit 1
+run pacman -S paru timeshift oh-my-zsh-git pamac-aur plymouth --noconfirm|| exit 1
 
 genfstab -U /mnt >> /mnt/etc/fstab
 
