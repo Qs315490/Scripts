@@ -4,7 +4,7 @@
 
 from sys import argv
 from os import chdir, listdir, path
-from rich.progress import track
+from rich.progress import track as rich_track
 from pymkv import MKVFile, MKVTrack
 
 
@@ -29,7 +29,7 @@ def dir_del(dir_path: str):
         if file.endswith(".mkv"):
             mkv_list.append(file)
 
-    for file in track(mkv_list):
+    for file in rich_track(mkv_list):
         file_del(file)
 
 
