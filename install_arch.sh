@@ -7,7 +7,7 @@ UserName='qs315490'
 UserPasswd='Qs315490'
 HostName='Qs315490-Laptop'
 
-desktop_type='plasma'
+desktop_type='plasma-waylan'
 
 part_root='/dev/nvme0n1p3'
 part_swap='/dev/nvme0n1p2'
@@ -215,3 +215,4 @@ run sed -i 's/#GRUB_DISABLE_OS/GRUB_DISABLE_OS/' /etc/default/grub
 run grub-mkconfig -o /boot/grub/grub.cfg
 
 run pkgfile --update
+
