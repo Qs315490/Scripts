@@ -46,11 +46,11 @@ GPU(){
     for arg in "$GPUs";do
         case $arg in
             'intel') 
-                echo {vulkan,xf86-video}-intel intel-media-driver;;
+                echo vulkan-intel intel-media-driver;;
             'nvidia') 
                 echo nvidia{,-{utils,prime,settings}};;
             'amd') 
-                echo xf86-video-amdgpu vulkan-radeon libva-mesa-driver mesa-vdpau;;
+                echo vulkan-radeon libva-mesa-driver mesa-vdpau;;
             *) ;;
         esac
     done
@@ -117,6 +117,7 @@ if ! grep -qs "archlinuxcn" /mnt/etc/pacman.conf;then
     cat <<EOF >>/mnt/etc/pacman.conf
 [archlinuxcn]
 Server = https://$mirror/archlinuxcn/\$arch
+
 EOF
 fi
 
@@ -215,4 +216,3 @@ run sed -i 's/#GRUB_DISABLE_OS/GRUB_DISABLE_OS/' /etc/default/grub
 run grub-mkconfig -o /boot/grub/grub.cfg
 
 run pkgfile --update
-
