@@ -7,7 +7,7 @@ UserName='qs315490'
 UserPasswd='Qs315490'
 HostName='Qs315490-Laptop'
 
-desktop_type='plasma-waylan'
+desktop_type='plasma_waylan'
 
 part_root='/dev/nvme0n1p3'
 part_swap='/dev/nvme0n1p2'
@@ -62,13 +62,13 @@ sddm sddm-kcm # kde 控制模块
 # Kde 最小安装
 plasma-{desktop,pa,nm,systemmonitor} breeze-gtk kde-gtk-config powerdevil kscreen kgamma kinfocenter konsole fcitx5-im kcm-fcitx5 fcitx5-chinese-addons kate dolphin colord-kde gpm ark partitionmanager kwalletmanager kdeconnect sshfs
 # 蓝牙
-bluedevil pulseaudio-bluetooth
+bluedevil
 # 屏幕跟随传感器旋转
 # iio-sensor-proxy
 )
 
 # 未完成
-plasma-wayland=(
+plasma_wayland=(
 ${plasma[@]}
 plasma-wayland-protocols
 krdp
@@ -216,3 +216,4 @@ run sed -i 's/#GRUB_DISABLE_OS/GRUB_DISABLE_OS/' /etc/default/grub
 run grub-mkconfig -o /boot/grub/grub.cfg
 
 run pkgfile --update
+
