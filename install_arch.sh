@@ -15,13 +15,13 @@ part_efi='/dev/nvme0n1p1'
 
 # 软件源
 # reflector -p https -f 1 -c china --save /etc/pacman.d/mirrorlist
-mirror='mirrors.tuna.tsinghua.edu.cn'
+mirror='mirrors.cernet.edu.cn'
 echo "Server = https://$mirror/archlinux/\$repo/os/\$arch" > /etc/pacman.d/mirrorlist
 
 if [[ $1 == 'sel' ]];then
     echo 'WIP'
-    PS3='CPU Type:';select CPU_type in intel amd;break
-    PS3='GPU Type:';select GPUs in intel amd nvidia;break
+    PS3='CPU Type: ';select CPU_type in intel amd;break
+    PS3='GPU Type: ';select GPUs in intel amd nvidia;break
 fi
 
 if false;then
@@ -48,7 +48,7 @@ GPU(){
             'intel') 
                 echo vulkan-intel intel-media-driver;;
             'nvidia') 
-                echo nvidia{,-{utils,prime,settings}};;
+                echo nvidia{,-prime};;
             'amd') 
                 echo vulkan-radeon libva-mesa-driver mesa-vdpau;;
             *) ;;
@@ -216,4 +216,3 @@ run sed -i 's/#GRUB_DISABLE_OS/GRUB_DISABLE_OS/' /etc/default/grub
 run grub-mkconfig -o /boot/grub/grub.cfg
 
 run pkgfile --update
-
