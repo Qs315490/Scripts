@@ -14,8 +14,8 @@ GPUs=(intel nvidia)
 UserName='qs315490'
 UserPasswd='Qs315490'
 HostName='Qs315490-Laptop'
-
-desktop_type='plasma_waylan'
+# Desktop Type (gnome plasma plasma_wayland hyprland)
+desktop_type='plasma_wayland'
 
 disk_path='/dev/nvme0n1'
 get_part_path() {
@@ -38,7 +38,7 @@ get_part_path() {
     fi
     echo $result
 }
-# 分区
+# 分区 内核路径 动态获取
 part_root=$(get_part_path 3)
 part_swap=$(get_part_path 2)
 part_efi=$(get_part_path 1)
@@ -121,7 +121,7 @@ plasma=(
 # 显示器管理器
 sddm sddm-kcm # kde 控制模块
 # Kde 最小安装
-plasma-{desktop,pa,nm,systemmonitor} powerdevil kscreen kgamma colord-kde gpm
+plasma-{desktop,pa,nm,systemmonitor} powerdevil kscreen kgamma colord-kde
 # 主题
 breeze-gtk kde-gtk-config 
 # 文件管理器
@@ -137,7 +137,7 @@ kwalletmanager
 # 蓝牙 托盘图标
 bluedevil
 # 屏幕跟随传感器旋转
-# iio-sensor-proxy
+#iio-sensor-proxy
 # 系统信息查看器
 kinfocenter
 # 归档管理器
@@ -159,11 +159,11 @@ gnome=(
 # 显示器管理器
 gdm
 # 桌面环境
-gnome-shell gnome-shell-extension-appindicator
+gnome-shell gnome-shell-extension-appindicator gnome-backgrounds adw-gtk-theme
 # 设置
 gnome-control-center gnome-tweaks dconf-editor
 # 文件管理器
-nautilus
+nautilus gvfs-smb
 # 终端
 gnome-console
 # 文本编辑器
@@ -174,6 +174,10 @@ gnome-system-monitor
 seahorse
 # 输入法
 ibus ibus-libpinyin
+# 远程桌面服务器
+gnome-remote-desktop
+# 摄像头
+#snapshot
 )
 
 # 未完成
