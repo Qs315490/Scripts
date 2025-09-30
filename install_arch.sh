@@ -118,20 +118,62 @@ amd_gpu=(vulkan-radeon libva-mesa-driver mesa-vdpau)
 nvidia_gpu=(nvidia{,-prime})
 
 plasma=(
-# sddm
+# 显示器管理器
 sddm sddm-kcm # kde 控制模块
 # Kde 最小安装
-plasma-{desktop,pa,nm,systemmonitor} breeze-gtk kde-gtk-config powerdevil kscreen kgamma kinfocenter konsole fcitx5-im kcm-fcitx5 fcitx5-chinese-addons kate dolphin colord-kde gpm ark partitionmanager kwalletmanager kdeconnect sshfs
-# 蓝牙
+plasma-{desktop,pa,nm,systemmonitor} powerdevil kscreen kgamma colord-kde gpm
+# 主题
+breeze-gtk kde-gtk-config 
+# 文件管理器
+dolphin
+# 终端
+konsole
+# 输入法
+fcitx5-im kcm-fcitx5 fcitx5-chinese-addons
+# 文本编辑器
+kate
+# 密钥管理器
+kwalletmanager
+# 蓝牙 托盘图标
 bluedevil
 # 屏幕跟随传感器旋转
 # iio-sensor-proxy
+# 系统信息查看器
+kinfocenter
+# 归档管理器
+ark
+# 分区工具
+partitionmanager
+# 手机连接
+kdeconnect sshfs
 )
 
 plasma_wayland=(
 ${plasma[@]}
 plasma-wayland-protocols
 krdp
+)
+
+# gnome 最小安装
+gnome=(
+# 显示器管理器
+gdm
+# 桌面环境
+gnome-shell gnome-shell-extension-appindicator
+# 设置
+gnome-control-center gnome-tweaks dconf-editor
+# 文件管理器
+nautilus
+# 终端
+gnome-console
+# 文本编辑器
+gnome-text-editor
+# 任务管理器
+gnome-system-monitor
+# 密钥管理器
+seahorse
+# 输入法
+ibus ibus-libpinyin
 )
 
 # 未完成
