@@ -1,17 +1,57 @@
-#!/bin/bash -i
+#!/bin/bash
+
+# 错误即停止
+set -e
+# 管道中任何一个命令失败则失败
+set -o pipefail
+# 显示执行的命令
+# set -x
+# 开启 alias
+shopt -s expand_aliases
 
 CPU_type='intel'
 GPUs=(intel nvidia)
-ismount=`grep -qs '/mnt' /proc/mounts`
 UserName='qs315490'
 UserPasswd='Qs315490'
 HostName='Qs315490-Laptop'
 
 desktop_type='plasma_waylan'
 
-part_root='/dev/nvme0n1p3'
-part_swap='/dev/nvme0n1p2'
-part_efi='/dev/nvme0n1p1'
+disk_path='/dev/nvme0n1'
+get_part_path() {
+    # 通过分区序号获取分区路径
+    # $1 分区号
+    # return /dev/xxx
+    if [ -z "$disk_path" ];then
+        echo "Please provide disk path"
+        exit 1
+    fi
+    if [ -z "$1" ];then
+        echo "Please provide partition number"
+        exit 1
+    fi
+    # 假定已经分区好了
+    result=$(lsblk $disk_path -o NAME,PARTN -p -l | awk "\$2==$1 {print \$1}")
+    if [ -z "$result" ];then
+        echo "Partition $1 not found on $disk_path"
+        exit 1
+    fi
+    echo $result
+}
+# 分区
+part_root=$(get_part_path 3)
+part_swap=$(get_part_path 2)
+part_efi=$(get_part_path 1)
+
+mount_dir='/mnt'
+ismount=$(grep -qs $mount_dir /proc/mounts && echo "true" || echo "false")
+
+network_check() {
+    if ! ping -c 1 -W 1 8.8.8.8 &> /dev/null;then
+        echo "Network is not available"
+        return 1
+    fi
+}
 
 # 软件源
 # reflector -p https -f 1 -c china --save /etc/pacman.d/mirrorlist
@@ -19,42 +59,63 @@ mirror='mirrors.cernet.edu.cn'
 echo "Server = https://$mirror/archlinux/\$repo/os/\$arch" > /etc/pacman.d/mirrorlist
 
 if [[ $1 == 'sel' ]];then
-    echo 'WIP'
     PS3='CPU Type: ';select CPU_type in intel amd;break
     PS3='GPU Type: ';select GPUs in intel amd nvidia;break
 fi
 
-if false;then
-    mount -t btrfs -o compress=zstd $part_root /mnt
-    cd /mnt
+btrfs_create_subvol() {
+    if [ "$ismount" = "true" ];then
+        echo "$mount_dir is already mounted, skipping btrfs subvolume creation"
+        return
+    fi
+    mount -t btrfs -o compress=zstd $part_root $mount_dir
+    pushd "$mount_dir"
     btrfs sub c @
     btrfs sub c @home
-    cd ..
-    umount /mnt
-fi
+    popd
+    umount $mount_dir
+}
 
 # mount
-if ! $ismount;then
-    mount -t btrfs -o compress=zstd,subvol=@ $part_root /mnt
-    mkdir -p /mnt/boot/efi /mnt/home
-    mount -t btrfs -o compress=zstd,subvol=@home $part_root /mnt/home
-    mount $part_efi /mnt/boot/efi
-    swapon $part_swap
-fi
+mount_part() {
+    if [ "$ismount" = "true" ];then
+        echo "$mount_dir is already mounted, skipping mount"
+        return
+    fi
+    # 检查变量是否设置
+    if [ -z "$part_root" ];then
+        echo "Please set part_root"
+        return 1
+    fi
+    if [ -z "$part_efi" ];then
+        echo "Please set part_efi"
+        return 1
+    fi
+    # 判断分区是否存在
+    if [ ! -b "$part_root" ];then
+        echo "$part_root is not a block device"
+        return 1
+    fi
+    if [ ! -b "$part_efi" ];then
+        echo "$part_efi is not a block device"
+        return 1
+    fi
 
-GPU(){
-    for arg in "$GPUs";do
-        case $arg in
-            'intel') 
-                echo vulkan-intel intel-media-driver;;
-            'nvidia') 
-                echo nvidia{,-prime};;
-            'amd') 
-                echo vulkan-radeon libva-mesa-driver mesa-vdpau;;
-            *) ;;
-        esac
-    done
+    echo mount rootfs and efi
+    mount -t btrfs -o compress=zstd,subvol=@ $part_root $mount_dir
+    mkdir -p $mount_dir/{boot/efi,home}
+    mount -t btrfs -o compress=zstd,subvol=@home $part_root $mount_dir/home
+    mount $part_efi $mount_dir/boot/efi
+
+    if [ -n "$part_swap" ];then
+        # 如果有交换分区就启用
+        swapon $part_swap
+    fi
 }
+
+intel_gpu=(vulkan-intel intel-media-driver)
+amd_gpu=(vulkan-radeon libva-mesa-driver mesa-vdpau)
+nvidia_gpu=(nvidia{,-prime})
 
 plasma=(
 # sddm
@@ -67,7 +128,6 @@ bluedevil
 # iio-sensor-proxy
 )
 
-# 未完成
 plasma_wayland=(
 ${plasma[@]}
 plasma-wayland-protocols
@@ -89,10 +149,13 @@ hyprland=(
     # 音频
 )
 
+declare -n desktop="$desktop_type"
+
 packages=(
 base-devel
 # Shell
-bash-completion zsh sudo reflector pkgfile less
+bash-completion zsh sudo reflector pkgfile less vim
+zsh-autocomplete zsh-syntax-highlighting
 # 字体
 noto-fonts-{cjk,emoji} ttf-cascadia-code
 # 音频
@@ -103,62 +166,112 @@ btrfs-progs exfatprogs
 networkmanager
 # CPU
 ${CPU_type}-ucode
-# GPU
-`GPU`
 # 桌面环境
-${$desktop_type}
+${desktop[@]}
 # 蓝牙
 bluez-utils
+# 电源配置
+power-profiles-daemon
+# 线程优化
+irqbalance
+# zram
+zram-generator
 )
+for GPU in "${GPUs[@]}"; do
+    declare -n current_array="${GPU}_gpu"   # 创建一个 变量，其值是 ${GPU}_gpu 数组
+    packages+=("${current_array[@]}")       # 把当前数组的内容追加到 packages 中
+done
 
-# 开始安装
-pacstrap /mnt base linux linux-firmware vim grub efibootmgr os-prober ${packages[@]} || exit 1
-if ! grep -qs "archlinuxcn" /mnt/etc/pacman.conf;then
-    cat <<EOF >>/mnt/etc/pacman.conf
+alias run='arch-chroot $mount_dir'
+install_packages() {
+    pacstrap $mount_dir base linux linux-firmware grub efibootmgr os-prober ${packages[@]}
+    if ! grep -qs "archlinuxcn" $mount_dir/etc/pacman.conf;then
+    cat <<EOF >>$mount_dir/etc/pacman.conf
 [archlinuxcn]
 Server = https://$mirror/archlinuxcn/\$arch
 
 EOF
-fi
+    fi
+    run pacman -Sy archlinuxcn-keyring --noconfirm
+    run pacman -S paru timeshift pamac-aur plymouth --noconfirm
+}
 
-alias run='arch-chroot /mnt'
+config_user() {
+    echo set root password as User Passwd
+    run bash -c "echo root:$UserPasswd|chpasswd"
 
-# install packages
-run pacman -Sy archlinuxcn-keyring --noconfirm|| exit 1
-run pacman -S paru timeshift oh-my-zsh-git pamac-aur plymouth --noconfirm|| exit 1
+    echo add user $UserName
+    run useradd -m -G wheel,lp -s '/usr/bin/zsh' $UserName || echo "User $UserName already exists"
 
-genfstab -U /mnt >> /mnt/etc/fstab
+    echo set $UserName password
+    run bash -c "echo $UserName:$UserPasswd|chpasswd"
 
-# 配置 sudo
-run ln -s /usr/bin/vim /usr/bin/vi
-sed -i 's/# %wheel ALL=(ALL:ALL) N/%wheel ALL=(ALL:ALL) N/' /mnt/etc/sudoers
+    echo install oh-my-zsh
+    run su $UserName -c 'paru -S oh-my-zsh-git --noconfirm'
 
-# 配置 time 设置
-run ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
-run hwclock --systohc
-# timedatectl 只能改变当前环境，chroot环境不影响最终环境
-# run timedatectl set-local-rtc true
+    echo config oh-my-zsh pulgin and theme
+	run sed -i 's|#[[:space:]]*ZSH_CUSTOM=.*|ZSH_CUSTOM=/usr/share/zsh|' /usr/share/oh-my-zsh/zshrc
+    run cp /usr/share/oh-my-zsh/zshrc /home/$UserName/.zshrc
+    run chown $UserName:$UserName /home/$UserName/.zshrc
+    run su $UserName -c 'source ~/.zshrc;omz theme set ys;omz plugin enable sudo safe-paste extract command-not-found zsh-autocomplete zsh-syntax-highlighting'
 
-# locale
-sed -i 's/#zh_CN.U/zh_CN.U/' /mnt/etc/locale.gen
-run locale-gen
-echo 'LANG=zh_CN.UTF-8' > /mnt/etc/locale.conf
+    echo copy oh-my-zsh config to root
+    run cp /home/$UserName/.zshrc /root/.zshrc
+    run chown root:root /root/.zshrc
+}
 
-# hostname
-echo $HostName > /mnt/etc/hostname
+config_system() {
+    echo genfstab
+    genfstab -U /mnt | run tee /etc/fstab
 
-# service
-run balooctl suspend
-run balooctl disable
-enable="systemctl enable"
-run $enable NetworkManager
-run $enable sddm
-run $enable bluetooth
+    echo link vi to vim
+    run ln -s /usr/bin/vim /usr/bin/vi
+    echo config sudo
+    run sed -i 's/# %wheel ALL=(ALL:ALL) N/%wheel ALL=(ALL:ALL) N/' /etc/sudoers
 
-# config
-mkdir /mnt/etc/sddm.conf.d
-if [[ $desktop_type == 'plasma' ]];then
-cat <<EOF > /mnt/etc/sddm.conf.d/kde_settings.conf
+    echo config timezone
+    run ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
+    # run hwclock --systohc
+    # timedatectl 只能改变当前环境，chroot环境不影响最终环境
+    # run timedatectl set-local-rtc true
+
+    echo config locale
+    run sed -i 's/#zh_CN.U/zh_CN.U/' /etc/locale.gen
+    run locale-gen
+    echo 'LANG=zh_CN.UTF-8' | run tee /etc/locale.conf
+
+    echo config hostname
+    echo $HostName | run tee /etc/hostname
+
+    echo config zram
+	cat <<EOF | run tee /etc/systemd/zram-generator.conf
+[zram0]
+zram-size = min(ram / 2, 4096)
+compression-algorithm = zstd
+EOF
+
+    echo enable service
+    enable="systemctl enable"
+    cat <<EOF >> $mount_dir/usr/lib/systemd/system/systemd-zram-setup@.service
+[Install]
+WantedBy=multi-user.target
+
+EOF
+	run $enable systemd-zram-setup@zram0.service
+    run $enable NetworkManager
+    run $enable irqbalance
+    if [[ "$desktop_type" =~ 'plasma' ]];then
+        run $enable sddm
+        balooctl=`run sh -c 'ls /usr/bin/balooctl*'`
+        run $balooctl suspend
+        run $balooctl disable
+    fi
+    run $enable bluetooth
+
+    if [[ "$desktop_type" =~ 'plasma' ]];then
+        echo config sddm
+        run mkdir /etc/sddm.conf.d
+        cat <<EOF | run tee /etc/sddm.conf.d/kde_settings.conf
 [General]
 Numlock=on
 [Autologin]
@@ -166,53 +279,70 @@ Relogin=false
 Session=plasma
 User=$UserName
 EOF
-fi
+        if [[ "$desktop_type" == 'plasma_wayland' ]];then
+            cat <<EOF | run tee /etc/sddm.conf.d/10-wayland.conf
+[General]
+DisplayServer=wayland
+GreeterEnvironment=QT_WAYLAND_SHELL_INTEGRATION=layer-shell
 
-for gpu in ${GPUs[@]};do
-    case $gpu in
-        intel)
-            echo 'options i915 enable_fbc=1'>/mnt/etc/modprobe.d/i915.conf;;
-    esac
-done
+[Wayland]
+CompositorCommand=kwin_wayland --drm --no-lockscreen --no-global-shortcuts --locale1 --inputmethod maliit-keyboard
+EOF
+        fi
+    fi
 
-if [[ $desktop_type == 'plasma' ]];then
-cat <<EOF >> /mnt/etc/environment
+
+    for gpu in ${GPUs[@]};do
+        case $gpu in
+            intel)
+                echo 'options i915 enable_fbc=1' | run tee /etc/modprobe.d/i915.conf;;
+        esac
+    done
+
+    if [[ "$desktop_type" =~ 'plasma' ]];then
+        echo config fcitx5
+        cat <<EOF >> $mount_dir/etc/environment
 GTK_IM_MODULE=fcitx
 QT_IM_MODULE=fcitx
-EOF
-fi
-
-cat <<EOF >> /mnt/etc/environment
 XMODIFIERS=@im=fcitx
 SDL_IM_MODULE=fcitx
 GLFW_IM_MODULE=ibus
 EOF
+    fi
 
-# pacman config
-sed -i 's/#Color/Color/' /mnt/etc/pacman.conf
-sed -i 's/#BottomUp/BottomUp/' /mnt/etc/paru.conf
+    # pacman config
+    run sed -i 's/#Color/Color/' /etc/pacman.conf
+    run sed -i 's/#BottomUp/BottomUp/' /etc/paru.conf
 
-# 修复 dolphin ntfs报错
-if [[ $disktop_type == 'plasma' ]];then
-cat <<EOF >> /mnt/etc/udisks2/mount_options.conf
+    if [[ "$desktop_type" =~ 'plasma' ]];then
+        echo fix dolphin ntfs error
+        cat <<EOF >> $mount_dir/etc/udisks2/mount_options.conf
 [defaults]
 ntfs_defaults=uid=\$UID,gid=\$GID,noatime,prealloc
 EOF
-fi
+    fi
 
-# add user
-run useradd -m -G wheel,lp -s '/usr/bin/zsh' $UserName
-run cp /usr/share/oh-my-zsh/zshrc /home/$UserName/.zshrc
-run chown $UserName:$UserName /home/$UserName/.zshrc
-run su $UserName -c 'source ~/.zshrc;omz theme set ys;omz plugin enable sudo safe-paste extract command-not-found'
+    echo config plymouth mkinitramfs.conf hooks
+	run sed -i 's/^HOOKS=(\([^)]*\))/HOOKS=(\1 plymouth)/' /etc/mkinitcpio.conf
+	run mkinitcpio -P
 
-# password
-run bash -c "echo root:$UserPasswd|chpasswd"
-run bash -c "echo $UserName:$UserPasswd|chpasswd"
+    echo update pkgfile database
+    run pkgfile --update
+}
 
-# grub
-run grub-install
-run sed -i 's/#GRUB_DISABLE_OS/GRUB_DISABLE_OS/' /etc/default/grub
-run grub-mkconfig -o /boot/grub/grub.cfg
+grub_install() {
+    run grub-install --target=x86_64-efi --efi-directory=/boot/efi
+    run sed -i 's/#GRUB_DISABLE_OS/GRUB_DISABLE_OS/' /etc/default/grub
+    run grub-mkconfig -o /boot/grub/grub.cfg
+}
 
-run pkgfile --update
+all(){
+    network_check || return 1
+    btrfs_create_subvol
+    mount_part
+    install_packages
+    config_user
+    config_system
+    grub_install
+}
+all
