@@ -2,10 +2,11 @@
 剔除mkv附加文件，参数1为 文件 或 文件夹
 """
 
-from sys import argv
 from os import chdir, listdir, path
-from rich.progress import track
+from sys import argv
+
 from pymkv import MKVFile
+from rich.progress import track
 
 
 def file_del(work_file: str):
@@ -16,10 +17,7 @@ def file_del(work_file: str):
 
 
 def dir_del(dir_path: str):
-    mkv_file =[]
-    for file in listdir(dir_path):
-        if file.endswith(".mkv"):
-            mkv_file.append(file)
+    mkv_file = [file for file in listdir(dir_path) if file.endswith(".mkv")]
 
     for file in track(mkv_file, description="附件文件删除"):
         file_del(file)
@@ -30,7 +28,7 @@ def main():
     if argc < 2:
         print(f"Usage: python {argv[0]} <input.mkv>|<mkv_dir>")
         return
-    
+
     if path.isfile(argv[1]):
         work_path = path.dirname(argv[1])
         chdir(work_path)

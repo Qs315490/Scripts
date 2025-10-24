@@ -14,9 +14,9 @@ def file_del(work_file: str):
     tracks: list[MKVTrack] = mkv.tracks
     if type(tracks[0]) is not MKVTrack:
         return
-    for track in tracks[:]:
-        if track.track_type == "subtitles":
-            mkv.tracks.remove(track)
+    for file_track in tracks[:]:
+        if file_track.track_type == "subtitles":
+            mkv.tracks.remove(file_track)
             removed_track = True
     if removed_track:
         mkv.no_attachments()

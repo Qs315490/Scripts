@@ -2,15 +2,15 @@
 转换mkv文件字幕，参数1为 文件 或 文件夹
 """
 
+from os import chdir, listdir, mkdir, path
 from sys import argv
-from os import chdir, listdir, path, mkdir
-from rich.progress import track
+
 from opencc import OpenCC
 
 OUTPUT_PATH='./output'
 
 def file_convert(work_file: str):
-    with open(work_file, "r", encoding="utf-8") as f:
+    with open(work_file, encoding="utf-8") as f:
         content = f.read()
     content = OpenCC("t2s.json").convert(content)
     if not path.isdir(OUTPUT_PATH):
@@ -21,10 +21,8 @@ def file_convert(work_file: str):
 
 
 def dir_convert(dir_path: str):
-    mkv_list = []
-    for file in listdir(dir_path):
-        if file.endswith(".ass"):
-            mkv_list.append(file)
+    mkv_list = [file for file in listdir(dir_path) if file.endswith(".ass")]
+
     for file in mkv_list:
         file_convert(file)
 

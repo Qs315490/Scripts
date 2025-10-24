@@ -2,10 +2,11 @@
 剔除mkv文件轨道id为2的音频，参数1为 文件 或 文件夹
 """
 
-from sys import argv
 from os import chdir, listdir, path
-from rich.progress import track as rich_track
+from sys import argv
+
 from pymkv import MKVFile, MKVTrack
+from rich.progress import track as rich_track
 
 
 def file_del(work_file: str):
@@ -24,10 +25,7 @@ def file_del(work_file: str):
 
 
 def dir_del(dir_path: str):
-    mkv_list = []
-    for file in listdir(dir_path):
-        if file.endswith(".mkv"):
-            mkv_list.append(file)
+    mkv_list = [file for file in listdir(dir_path) if file.endswith(".mkv")]
 
     for file in rich_track(mkv_list):
         file_del(file)

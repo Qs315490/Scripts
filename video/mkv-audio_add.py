@@ -2,10 +2,11 @@
 合并mkv mka，参数1为 文件夹
 """
 
-from sys import argv
 from os import chdir, listdir, path
-from rich.progress import track
+from sys import argv
+
 from pymkv import MKVFile, MKVTrack
+from rich.progress import track
 
 mkvs: list[str] = []
 mkas: list[str] = []
