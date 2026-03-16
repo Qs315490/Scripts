@@ -3,3 +3,4 @@ fonttools
 fonttools[woff]
 psutil
 otf2ttf
+OpenCC

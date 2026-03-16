@@ -19,16 +19,19 @@ file.bat file1 file2 file3
 # 脚本介绍
 ## fonts
 ### main.py
-将 `input` 文件夹的 `ttf`、`otf` 字体转为 `woff2` 输出到 `output`
+将 `input` 文件夹的 `ttf`、`otf`、`ttc` 字体转为 `woff2` 输出到 `output`
+请检查输出的字体是否可用，通过 [FontEditor](https://kekee000.github.io/fonteditor/) 可以查看字体是否可用
 
 ### ttc2ttf.py
 ```
 python ttc2ttf.py font.ttc 
 ```
-将 `ttc` 字体转为 `ttf`。默认保存到当前目录，使用 `字体源文件名+序号` 命名。
+将 `ttc` 字体转为 `ttf`。  
+如果未获取到字体名称，程序会使用 `字体源文件名+序号` 命名。
 
 ### ttf_rename.py
-将 `input` 文件夹的 `ttf`、`otf` 字体重命名，输出到 `output`。获取到的字体名称不一定为中文，有可能会获取到乱码。字体名称可以使用 Windows字体查看器查看，或使用类似软件，至少比这个脚本获得的名称质量好。
+将 `input` 文件夹的 `ttf`、`otf` 字体重命名，输出到 `output`。获取到的字体名称不一定为中文，有可能会获取到乱码。  
+这个脚本获得的名称质量较差，建议使用 Windows字体查看器查看
 
 ## sys_backup
 存放 Linux 系统备份和恢复的脚本
