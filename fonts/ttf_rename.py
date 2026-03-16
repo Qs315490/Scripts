@@ -25,6 +25,10 @@ def filter_font_name(
             case 0:  # Unicode
                 english_list[record.nameID].append(record)
 
+            # Macintosh平台字体名称编码格式未知，暂不处理。会导致部分字体名称乱码
+            # 一般情况下，乱码的字体都不支持Unicode编码，所以可以忽略
+            # 字体名称乱码也方便于查找出不支持Unicode编码的字体
+            # 适用于字体名称带 英文 的文件，毕竟不同编码相同的部分只有 ASCII 部分
             case 1:  # Macintosh
                 match record.langID:
                     case 0:
