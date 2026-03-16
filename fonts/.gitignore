@@ -1,1 +1,6 @@
 input/*
+output/*
+*.ttc
+*.ttf
+*.otf
+*.woff*
