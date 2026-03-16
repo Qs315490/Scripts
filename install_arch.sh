@@ -119,7 +119,7 @@ nvidia_gpu=(nvidia{,-prime})
 
 plasma=(
 # 显示器管理器
-sddm sddm-kcm # kde 控制模块
+plasma-login-manager
 # Kde 最小安装
 plasma-{desktop,pa,nm,systemmonitor} powerdevil kscreen kgamma colord-kde
 # 主题
